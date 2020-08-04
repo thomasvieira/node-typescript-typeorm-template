@@ -20,8 +20,11 @@ class AuthenticateService {
   public async execute({ email, password }: Request): Promise<Response> {
     const usersRepository = getRepository(User);
 
-    const user = await usersRepository.findOne({ where: { email } });
-
+    try {
+      const user = await usersRepository.findOne({ where: { email } });
+    } catch {
+      throw new AppError('Invalid Token', 401);
+    }
     if (!user) {
       throw new AppError('Wrong credentials', 401);
     }
@@ -42,12 +45,16 @@ class AuthenticateService {
       throw new AppError('Missing setting', 501);
     }
 
-    const token = sign({}, secret, {
-      subject: user.id,
-      expiresIn,
-    });
+    try {
+      const token = sign({}, secret, {
+        subject: user.id,
+        expiresIn,
+      });
 
-    return { user, token };
+      return { user, token };
+    } catch {
+      throw new AppError('Invalid Token', 401);
+    }
   }
 }
 

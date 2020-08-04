@@ -12,16 +12,16 @@ class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column('varchar', { length: 140 })
   name: string;
 
-  @Column()
+  @Column('varchar', { length: 140 })
   email: string;
 
-  @Column()
+  @Column('varchar', { length: 140 })
   password: string;
 
-  @Column()
+  @Column('varchar', { length: 140, nullable: true })
   avatar: string;
 
   @CreateDateColumn()

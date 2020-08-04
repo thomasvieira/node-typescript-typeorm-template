@@ -1,8 +1,6 @@
-let jwtSettings = process.env.JWT_SETTINGS;
-if (jwtSettings === undefined) {
-  jwtSettings = '{}';
-}
+const { secret } = process.env;
+const { expiresIn } = process.env;
 
-const authConfig = JSON.parse(jwtSettings);
+const authConfig = { secret, expiresIn };
 
 export default authConfig;

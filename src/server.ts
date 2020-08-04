@@ -2,33 +2,36 @@
 import 'reflect-metadata';
 import './config/dotenv';
 
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
+import 'express-async-errors';
 
-import { getRepository } from 'typeorm';
+import routes from './routes';
+import AppError from './errors/AppError';
 
 import createConnection from './database';
-import Photo from './entity/Photo';
 
 createConnection();
 const app = express();
 
-app.get('/photos', async (request, response) => {
-  const photoRepository = getRepository(Photo);
-  const savedPhotos = await photoRepository.find();
+app.use(express.json());
+app.use(routes);
 
-  return response.json({
-    ok: 'Hello RocketLab',
-    savedPhotos,
-  });
-});
+app.use(
+  (err: Error, request: Request, response: Response, _next: NextFunction) => {
+    if (err instanceof AppError) {
+      return response.status(err.statusCode).json({
+        status: 'error',
+        message: err.message,
+      });
+    }
 
-app.get('/', (request, response) => {
-  response.json({
-    ok: 'Hello RocketLab',
-    TYPEORM_HOST: process.env.TYPEORM_HOST,
-    NODE_ENV: process.env.NODE_ENV,
-  });
-});
+    console.error(err);
+    return response.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+    });
+  },
+);
 
 console.log('Server running on port 3333');
 app.listen(3333);
